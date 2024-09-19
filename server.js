@@ -134,14 +134,15 @@ app.get('/images', async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.query.filter || ''; // Mendapatkan filter dari query string
   
-    // Query ke Supabase dengan limit, offset, dan filter
-    const query = supabase
+    // Query ke Supabase dengan limit, offset, filter, dan urutkan berdasarkan abjad (judul)
+    let query = supabase
       .from('images')
       .select('*', { count: 'exact' })
-      .range(offset, offset + limit - 1); // Mengatur batas data
-  
+      .range(offset, offset + limit - 1)
+      .order('judul', { ascending: true }); // Mengurutkan berdasarkan judul (abjad)
+
     if (filter) {
-      query.ilike('by', filter); // Menerapkan filter
+      query = query.ilike('by', filter); // Menerapkan filter jika ada
     }
 
     const { data, error, count } = await query;
@@ -150,7 +151,7 @@ app.get('/images', async (req, res) => {
       console.error('Error listing images:', error.message);
       return res.status(500).json({ success: false, message: 'Failed to list images' });
     }
-  
+
     res.json({
       success: true,
       images: data,
@@ -161,6 +162,7 @@ app.get('/images', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch images' });
   }
 });
+
 
 // Jalankan server
 app.listen(PORT, () => {
