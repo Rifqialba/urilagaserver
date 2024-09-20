@@ -133,7 +133,8 @@ app.get('/images', async (req, res) => {
     const limit = parseInt(req.query.limit) || 6;
     const offset = (page - 1) * limit;
     const filter = req.query.filter || ''; // Mendapatkan filter dari query string
-  
+    const search = req.query.search || ''; // Mendapatkan pencarian dari query string
+
     // Query ke Supabase dengan limit, offset, filter, dan urutkan berdasarkan abjad (judul)
     let query = supabase
       .from('images')
@@ -143,6 +144,10 @@ app.get('/images', async (req, res) => {
 
     if (filter) {
       query = query.ilike('by', filter); // Menerapkan filter jika ada
+    }
+    
+    if (search) {
+      query = query.ilike('judul', `%${search}%`); // Menerapkan pencarian berdasarkan judul jika ada
     }
 
     const { data, error, count } = await query;
