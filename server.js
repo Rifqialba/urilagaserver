@@ -13,7 +13,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 // Tambahkan CORS agar bisa diakses dari port yang berbeda
 app.use(cors({
-  origin: '*'
+  origin: 'https://ratinginyuk.netlify.app'
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
