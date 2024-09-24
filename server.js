@@ -53,12 +53,13 @@ app.post('/login', async (req, res) => {
 });
 
 
+// Upload Endpoint
 app.post('/upload', upload.single('image'), async (req, res) => {
   try {
     const file = req.file;
-    const { judul, rating, tanggal, by } = req.body;
+    const { judul, rating, tanggal, by, genre, jenis } = req.body;
 
-    if (!judul || !rating || !tanggal || !by) {
+    if (!judul || !rating || !tanggal || !by || !genre || !jenis) {
       console.error('Incomplete metadata');
       return res.status(400).json({ success: false, message: 'Incomplete metadata' });
     }
@@ -109,6 +110,8 @@ app.post('/upload', upload.single('image'), async (req, res) => {
           rating,
           tanggal,
           by,
+          genre: genre.split(','), // Simpan genre sebagai array
+          jenis,  // Masukkan jenis
           sign // Insert the sign value
         }
       ]);
