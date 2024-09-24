@@ -56,14 +56,15 @@ app.post('/login', async (req, res) => {
 app.post('/upload', upload.single('image'), async (req, res) => {
   try {
     const file = req.file;
-    const { judul, rating, tanggal, by } = req.body;
+    const { judul, rating, tanggal, by, genre, jenis } = req.body;
 
-    if (!judul || !rating || !tanggal || !by) {
+    if (!judul || !rating || !tanggal || !by || !genre || !jenis) {
       console.error('Incomplete metadata');
       return res.status(400).json({ success: false, message: 'Incomplete metadata' });
     }
 
-    // Determine the sign value based on the 'by' field
+    const genreArray = Array.isArray(genre) ? genre : [genre]; // Pastikan genre berbentuk array
+
     let sign = null;
     if (by === 'Aca') {
       sign = 'paw1.png';
@@ -86,7 +87,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         return res.status(500).json({ success: false, message: 'Error uploading to Supabase' });
       }
 
-      // Get signed URL
       const { signedURL: url, error: urlError } = await supabase.storage
         .from('uploads')
         .createSignedUrl(fileName, 60 * 60 * 24 * 365 * 10);
@@ -99,17 +99,18 @@ app.post('/upload', upload.single('image'), async (req, res) => {
       signedURL = url;
     }
 
-    // Insert data including 'sign' into the images table
     const { data: insertData, error: insertError } = await supabase
       .from('images')
       .insert([
         { 
-          image_url: signedURL,  // Make sure the signedURL is passed here
+          image_url: signedURL,
           judul,
           rating,
           tanggal,
           by,
-          sign // Insert the sign value
+          genre: genreArray,  // Masukkan genre sebagai array
+          jenis,               // Masukkan jenis
+          sign
         }
       ]);
 
